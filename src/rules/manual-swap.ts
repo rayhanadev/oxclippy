@@ -27,8 +27,8 @@ function checkBody(body: Node[], context: Context) {
     const decl = s1.declarations[0]!;
     if (decl.id?.type !== "Identifier" || !decl.init) continue;
     const tmpName = decl.id.name;
-    const aName = exprName(decl.init);
-    if (!aName) continue;
+    const firstName = exprName(decl.init);
+    if (!firstName) continue;
 
     // s2: a = b;
     if (
@@ -37,9 +37,9 @@ function checkBody(body: Node[], context: Context) {
       s2.expression.operator !== "="
     )
       continue;
-    const assignLeft = exprName(s2.expression.left);
-    const bName = exprName(s2.expression.right);
-    if (assignLeft !== aName || !bName) continue;
+    const s2Left = exprName(s2.expression.left);
+    const secondName = exprName(s2.expression.right);
+    if (s2Left !== firstName || !secondName) continue;
 
     // s3: b = tmp;
     if (
@@ -48,12 +48,12 @@ function checkBody(body: Node[], context: Context) {
       s3.expression.operator !== "="
     )
       continue;
-    const assign2Left = exprName(s3.expression.left);
-    const assign2Right = exprName(s3.expression.right);
-    if (assign2Left !== bName || assign2Right !== tmpName) continue;
+    const thirdLeft = exprName(s3.expression.left);
+    const thirdRight = exprName(s3.expression.right);
+    if (thirdLeft !== secondName || thirdRight !== tmpName) continue;
 
     context.report({
-      message: `Manual swap: use destructuring \`[${aName}, ${bName}] = [${bName}, ${aName}]\` instead of a temp variable. (clippy::manual_swap)`,
+      message: `Manual swap: use destructuring \`[${firstName}, ${secondName}] = [${secondName}, ${firstName}]\` instead of a temp variable. (clippy::manual_swap)`,
       node: s1,
     });
   }

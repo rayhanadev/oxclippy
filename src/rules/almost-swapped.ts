@@ -24,14 +24,22 @@ function checkBody(body: Node[], context: Context) {
     const s1 = body[i]!;
     const s2 = body[i + 1]!;
 
-    const t1 = assignTarget(s1);
-    const src1 = assignSource(s1);
-    const t2 = assignTarget(s2);
-    const src2 = assignSource(s2);
+    const firstTarget = assignTarget(s1);
+    const firstSource = assignSource(s1);
+    const secondTarget = assignTarget(s2);
+    const secondSource = assignSource(s2);
 
-    if (t1 && src1 && t2 && src2 && t1 === src2 && t2 === src1 && t1 !== t2) {
+    if (
+      firstTarget &&
+      firstSource &&
+      secondTarget &&
+      secondSource &&
+      firstTarget === secondSource &&
+      secondTarget === firstSource &&
+      firstTarget !== secondTarget
+    ) {
       context.report({
-        message: `Almost swapped: \`${t1} = ${src1}; ${t2} = ${src2};\` overwrites \`${t1}\` before saving it. Use \`[${t1}, ${t2}] = [${t2}, ${t1}]\`. (clippy::almost_swapped)`,
+        message: `Almost swapped: \`${firstTarget} = ${firstSource}; ${secondTarget} = ${secondSource};\` overwrites \`${firstTarget}\` before saving it. Use \`[${firstTarget}, ${secondTarget}] = [${secondTarget}, ${firstTarget}]\`. (clippy::almost_swapped)`,
         node: s1,
       });
     }

@@ -10,9 +10,9 @@ export default {
     return {
       CallExpression(node: Node) {
         const { callee } = node;
-        const args = node.arguments;
-        if (!args || args.length !== 1) return;
-        const arg = args[0];
+        const callArgs = node.arguments;
+        if (!callArgs || callArgs.length !== 1) return;
+        const arg = callArgs[0];
 
         // String("literal string")
         if (

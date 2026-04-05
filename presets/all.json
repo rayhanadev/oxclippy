@@ -1,23 +1,4 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "settings": {
-    "jsdoc": {
-      "ignorePrivate": false,
-      "ignoreInternal": false,
-      "ignoreReplacesDocs": true,
-      "overrideReplacesDocs": true,
-      "augmentsExtendsReplacesDocs": false,
-      "implementsReplacesDocs": false,
-      "exemptDestructuredRootsFromChecks": false,
-      "tagNamePreference": {}
-    }
-  },
-  "env": {
-    "builtin": true
-  },
-  "globals": {},
-  "ignorePatterns": ["node_modules", "dist", "coverage"],
-  "jsPlugins": ["./dist/oxclippy.js"],
   "rules": {
     "oxclippy/needless-bool": "warn",
     "oxclippy/collapsible-if": "warn",

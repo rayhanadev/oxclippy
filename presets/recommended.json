@@ -1,23 +1,4 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "settings": {
-    "jsdoc": {
-      "ignorePrivate": false,
-      "ignoreInternal": false,
-      "ignoreReplacesDocs": true,
-      "overrideReplacesDocs": true,
-      "augmentsExtendsReplacesDocs": false,
-      "implementsReplacesDocs": false,
-      "exemptDestructuredRootsFromChecks": false,
-      "tagNamePreference": {}
-    }
-  },
-  "env": {
-    "builtin": true
-  },
-  "globals": {},
-  "ignorePatterns": ["node_modules", "dist", "coverage"],
-  "jsPlugins": ["./dist/oxclippy.js"],
   "rules": {
     "oxclippy/needless-bool": "warn",
     "oxclippy/collapsible-if": "warn",
@@ -62,14 +43,6 @@
     "oxclippy/unnecessary-reduce-collect": "warn",
     "oxclippy/prefer-structured-clone": "warn",
     "oxclippy/object-keys-values": "warn",
-    "oxclippy/promise-new-resolve": "warn",
-    "oxclippy/similar-names": "warn",
-    "oxclippy/match-same-arms": "warn",
-    "oxclippy/used-underscore-binding": "warn",
-    "oxclippy/needless-continue": "warn",
-    "oxclippy/enum-variant-names": "warn",
-    "oxclippy/struct-field-names": "warn",
-    "oxclippy/unreadable-literal": "warn",
-    "oxclippy/bool-to-int-with-if": "warn"
+    "oxclippy/promise-new-resolve": "warn"
   }
 }

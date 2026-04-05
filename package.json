@@ -21,14 +21,20 @@
     "type": "git",
     "url": "https://github.com/rayhanadev/oxclippy"
   },
+  "bin": {
+    "oxclippy": "./bin/oxclippy.mjs"
+  },
   "files": [
+    "bin",
     "dist",
+    "presets",
     "src"
   ],
   "type": "module",
   "main": "dist/oxclippy.js",
   "exports": {
-    ".": "./dist/oxclippy.js"
+    ".": "./dist/oxclippy.js",
+    "./presets/*": "./presets/*"
   },
   "scripts": {
     "build": "bun build src/plugin.ts --outfile dist/oxclippy.js --format esm",

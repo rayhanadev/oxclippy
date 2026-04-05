@@ -20,12 +20,12 @@ function commonPrefix(names: string[]): string {
   if (names.length < 2) return "";
   let prefix = names[0]!;
   for (let i = 1; i < names.length; i++) {
-    const name = names[i]!;
+    const current = names[i]!;
     let j = 0;
     while (
       j < prefix.length &&
-      j < name.length &&
-      prefix[j]!.toLowerCase() === name[j]!.toLowerCase()
+      j < current.length &&
+      prefix[j]!.toLowerCase() === current[j]!.toLowerCase()
     )
       j++;
     prefix = prefix.slice(0, j);
@@ -36,11 +36,10 @@ function commonPrefix(names: string[]): string {
   // For snake_case: prefix should end with _
   if (prefix.endsWith("_")) return prefix;
   // Check camelCase boundary: char at prefix.length in first name that's longer should be uppercase
-  for (const name of names) {
-    if (name.length > prefix.length) {
-      const nextChar = name[prefix.length]!;
+  for (const field of names) {
+    if (field.length > prefix.length) {
+      const nextChar = field[prefix.length]!;
       if (nextChar >= "A" && nextChar <= "Z") return prefix;
-      // Not a word boundary
       return "";
     }
   }
@@ -52,12 +51,12 @@ function commonSuffix(names: string[]): string {
   // Find raw common suffix
   let suffix = names[0]!;
   for (let i = 1; i < names.length; i++) {
-    const name = names[i]!;
+    const current = names[i]!;
     let j = 0;
     while (
       j < suffix.length &&
-      j < name.length &&
-      suffix[suffix.length - 1 - j] === name[name.length - 1 - j]
+      j < current.length &&
+      suffix[suffix.length - 1 - j] === current[current.length - 1 - j]
     )
       j++;
     suffix = suffix.slice(suffix.length - j);

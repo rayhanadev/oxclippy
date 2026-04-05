@@ -12,88 +12,44 @@ npm install -D oxclippy oxlint
 
 ## Configuration
 
-Add the plugin and enable rules in your `.oxlintrc.json`:
+If you don't have an `.oxlintrc.json` yet, create one first:
 
-```jsonc
-{
-  "jsPlugins": ["oxclippy"],
-  "rules": {
-    // enable all rules at once
-    "oxclippy/needless-bool": "warn",
-    "oxclippy/collapsible-if": "warn",
-    "oxclippy/float-comparison": "warn",
-    "oxclippy/filter-then-first": "warn",
-    "oxclippy/too-many-arguments": "warn",
-    // ... see full rule list below
-  },
-}
+```bash
+npx oxlint --init
 ```
 
-> **Tip:** You can set any rule to `"warn"`, `"error"`, or `"off"`.
+Then add oxclippy rules with a preset:
 
-### Enable all rules
-
-To enable every oxclippy rule at once, add them all to your config:
-
-```jsonc
-{
-  "jsPlugins": ["oxclippy"],
-  "rules": {
-    "oxclippy/needless-bool": "warn",
-    "oxclippy/collapsible-if": "warn",
-    "oxclippy/neg-multiply": "warn",
-    "oxclippy/bool-comparison": "warn",
-    "oxclippy/single-case-switch": "warn",
-    "oxclippy/let-and-return": "warn",
-    "oxclippy/int-plus-one": "warn",
-    "oxclippy/needless-late-init": "warn",
-    "oxclippy/identity-op": "warn",
-    "oxclippy/manual-clamp": "warn",
-    "oxclippy/manual-strip": "warn",
-    "oxclippy/useless-conversion": "warn",
-    "oxclippy/manual-swap": "warn",
-    "oxclippy/manual-is-finite": "warn",
-    "oxclippy/float-comparison": "warn",
-    "oxclippy/xor-used-as-pow": "warn",
-    "oxclippy/almost-swapped": "warn",
-    "oxclippy/if-same-then-else": "warn",
-    "oxclippy/never-loop": "warn",
-    "oxclippy/float-equality-without-abs": "warn",
-    "oxclippy/zero-divided-by-zero": "warn",
-    "oxclippy/filter-then-first": "warn",
-    "oxclippy/map-void-return": "warn",
-    "oxclippy/map-identity": "warn",
-    "oxclippy/manual-find": "warn",
-    "oxclippy/manual-some": "warn",
-    "oxclippy/manual-every": "warn",
-    "oxclippy/manual-includes": "warn",
-    "oxclippy/search-is-some": "warn",
-    "oxclippy/needless-range-loop": "warn",
-    "oxclippy/redundant-closure-call": "warn",
-    "oxclippy/explicit-counter-loop": "warn",
-    "oxclippy/unnecessary-fold": "warn",
-    "oxclippy/single-element-loop": "warn",
-    "oxclippy/too-many-arguments": "warn",
-    "oxclippy/too-many-lines": "warn",
-    "oxclippy/cognitive-complexity": "warn",
-    "oxclippy/excessive-nesting": "warn",
-    "oxclippy/fn-params-excessive-bools": "warn",
-    "oxclippy/redundant-closure": "warn",
-    "oxclippy/unnecessary-reduce-collect": "warn",
-    "oxclippy/prefer-structured-clone": "warn",
-    "oxclippy/object-keys-values": "warn",
-    "oxclippy/promise-new-resolve": "warn",
-    "oxclippy/similar-names": "warn",
-    "oxclippy/match-same-arms": "warn",
-    "oxclippy/used-underscore-binding": "warn",
-    "oxclippy/needless-continue": "warn",
-    "oxclippy/enum-variant-names": "warn",
-    "oxclippy/struct-field-names": "warn",
-    "oxclippy/unreadable-literal": "warn",
-    "oxclippy/bool-to-int-with-if": "warn",
-  },
-}
+```bash
+npx oxclippy init recommended
 ```
+
+This merges the preset rules into your `.oxlintrc.json` and adds `"oxclippy"` to `jsPlugins` automatically. Your existing rules are preserved.
+
+You can layer multiple presets:
+
+```bash
+npx oxclippy init correctness
+npx oxclippy init style
+```
+
+> **Tip:** You can set any rule to `"warn"`, `"error"`, or `"off"` in your `.oxlintrc.json` after init.
+
+### Presets
+
+| Preset        | Rules | Description                             |
+| ------------- | ----- | --------------------------------------- |
+| `recommended` | 44    | Everything except pedantic (default)    |
+| `all`         | 52    | All rules                               |
+| `style`       | 8     | Code style simplifications              |
+| `complexity`  | 6     | Unnecessary complexity                  |
+| `correctness` | 7     | Likely bugs                             |
+| `iterator`    | 13    | Loop and array method improvements      |
+| `functions`   | 5     | Function size and complexity            |
+| `principles`  | 5     | Prefer standard library and combinators |
+| `pedantic`    | 8     | Opinionated, nit-picky rules            |
+
+Preset JSON files are also available directly at `oxclippy/presets/*.json` if you prefer to reference them programmatically.
 
 ## Usage
 

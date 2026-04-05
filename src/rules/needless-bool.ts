@@ -8,10 +8,10 @@ import { isBoolLiteral, unwrapBlock } from "../types";
 
 function checkBoolReturn(consequent: Node, alternate: Node, node: Node, context: Context): boolean {
   if (consequent.type !== "ReturnStatement" || alternate.type !== "ReturnStatement") return false;
-  const cArg = consequent.argument;
-  const aArg = alternate.argument;
-  if (isBoolLiteral(cArg) && isBoolLiteral(aArg) && cArg.value !== aArg.value) {
-    const suggestion = cArg.value ? "return <condition>" : "return !<condition>";
+  const thenArg = consequent.argument;
+  const elseArg = alternate.argument;
+  if (isBoolLiteral(thenArg) && isBoolLiteral(elseArg) && thenArg.value !== elseArg.value) {
+    const suggestion = thenArg.value ? "return <condition>" : "return !<condition>";
     context.report({
       message: `Needless bool: this if/else returns opposing booleans. Simplify to \`${suggestion}\`. (clippy::needless_bool)`,
       node,
@@ -32,19 +32,21 @@ function isBoolAssign(
 
 function checkBoolAssign(consequent: Node, alternate: Node, node: Node, context: Context) {
   if (!isBoolAssign(consequent) || !isBoolAssign(alternate)) return;
-  const cExpr = consequent.expression;
-  const aExpr = alternate.expression;
+  const thenExpr = consequent.expression;
+  const elseExpr = alternate.expression;
 
   if (
-    cExpr.left.type === "Identifier" &&
-    aExpr.left.type === "Identifier" &&
-    cExpr.left.name === aExpr.left.name &&
-    isBoolLiteral(cExpr.right) &&
-    isBoolLiteral(aExpr.right) &&
-    cExpr.right.value !== aExpr.right.value
+    thenExpr.left.type === "Identifier" &&
+    elseExpr.left.type === "Identifier" &&
+    thenExpr.left.name === elseExpr.left.name &&
+    isBoolLiteral(thenExpr.right) &&
+    isBoolLiteral(elseExpr.right) &&
+    thenExpr.right.value !== elseExpr.right.value
   ) {
-    const varName = cExpr.left.name;
-    const suggestion = cExpr.right.value ? `${varName} = <condition>` : `${varName} = !<condition>`;
+    const varName = thenExpr.left.name;
+    const suggestion = thenExpr.right.value
+      ? `${varName} = <condition>`
+      : `${varName} = !<condition>`;
     context.report({
       message: `Needless bool: this if/else assigns opposing booleans. Simplify to \`${suggestion}\`. (clippy::needless_bool)`,
       node,

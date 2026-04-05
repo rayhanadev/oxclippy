@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "oxclippy/identity-op": "warn",
+    "oxclippy/manual-clamp": "warn",
+    "oxclippy/manual-strip": "warn",
+    "oxclippy/useless-conversion": "warn",
+    "oxclippy/manual-swap": "warn",
+    "oxclippy/manual-is-finite": "warn"
+  }
+}

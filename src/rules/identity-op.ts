@@ -27,8 +27,6 @@ export default {
             match = isLiteral(left, 1) || isLiteral(right, 1);
             break;
           case "/":
-            match = isLiteral(right, 1);
-            break;
           case "**":
             match = isLiteral(right, 1);
             break;

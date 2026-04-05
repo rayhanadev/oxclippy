@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "oxclippy/redundant-closure": "warn",
+    "oxclippy/unnecessary-reduce-collect": "warn",
+    "oxclippy/prefer-structured-clone": "warn",
+    "oxclippy/object-keys-values": "warn",
+    "oxclippy/promise-new-resolve": "warn"
+  }
+}
