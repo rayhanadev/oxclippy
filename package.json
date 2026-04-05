@@ -1,6 +1,6 @@
 {
   "name": "oxclippy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An oxlint JS plugin that mirrors Rust Clippy rules for TypeScript/JavaScript",
   "keywords": [
     "clippy",
