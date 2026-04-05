@@ -1,5 +1,7 @@
 # oxclippy
 
+https://github.com/user-attachments/assets/0f0d7b6a-09b0-42ea-bacb-0f70f3e51e5b
+
 An [oxlint JS plugin](https://oxc.rs/docs/guide/usage/linter/writing-js-plugins.html) that brings [Rust Clippy](https://doc.rust-lang.org/clippy/) lints to TypeScript and JavaScript.
 
 52 rules ported from Clippy, covering style, complexity, correctness, iterators, functions, and pedantic checks. Every rule is named after its Clippy counterpart and intentionally avoids duplicating anything already built into oxlint's eslint, typescript, unicorn, or oxc plugins.
