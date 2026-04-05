@@ -3,42 +3,48 @@
 // Suggests: for (const [i, x] of arr.entries())
 
 import type { Context, Node } from "../types";
-import { getFunctionBody, getForOfVar } from "../types";
+import { getFunctionBody } from "../types";
+
+function getZeroInitCounter(decl: Node): string | null {
+  if (decl.type !== "VariableDeclaration" || decl.declarations.length !== 1) return null;
+  const d = decl.declarations[0]!;
+  if (d.id?.type !== "Identifier" || d.init?.type !== "Literal" || d.init.value !== 0) return null;
+  return d.id.name;
+}
+
+function isCounterIncrement(stmt: Node, counterName: string): boolean {
+  if (stmt.type !== "ExpressionStatement") return false;
+  const expr = stmt.expression;
+  if (
+    expr?.type === "UpdateExpression" &&
+    expr.operator === "++" &&
+    expr.argument?.type === "Identifier" &&
+    expr.argument.name === counterName
+  )
+    return true;
+  if (
+    expr?.type === "AssignmentExpression" &&
+    expr.operator === "+=" &&
+    expr.left?.type === "Identifier" &&
+    expr.left.name === counterName &&
+    expr.right?.type === "Literal" &&
+    expr.right.value === 1
+  )
+    return true;
+  return false;
+}
 
 function checkBody(body: Node[], context: Context) {
   for (let i = 0; i < body.length - 1; i++) {
-    const decl = body[i]!;
+    const counterName = getZeroInitCounter(body[i]!);
+    if (!counterName) continue;
+
     const loop = body[i + 1]!;
-
-    // decl: let counter = 0;
-    if (decl.type !== "VariableDeclaration" || decl.declarations.length !== 1) continue;
-    const d = decl.declarations[0]!;
-    if (d.id?.type !== "Identifier" || d.init?.type !== "Literal" || d.init.value !== 0) continue;
-    const counterName = d.id.name;
-
-    // loop: for (const x of arr) { ... counter++; }
     if (loop.type !== "ForOfStatement") continue;
     if (loop.body?.type !== "BlockStatement" || loop.body.body.length === 0) continue;
 
     const stmts: Node[] = loop.body.body;
-    const last = stmts[stmts.length - 1]!;
-
-    // Check last statement is counter++ or counter += 1
-    const isIncrement =
-      (last.type === "ExpressionStatement" &&
-        last.expression?.type === "UpdateExpression" &&
-        last.expression.operator === "++" &&
-        last.expression.argument?.type === "Identifier" &&
-        last.expression.argument.name === counterName) ||
-      (last.type === "ExpressionStatement" &&
-        last.expression?.type === "AssignmentExpression" &&
-        last.expression.operator === "+=" &&
-        last.expression.left?.type === "Identifier" &&
-        last.expression.left.name === counterName &&
-        last.expression.right?.type === "Literal" &&
-        last.expression.right.value === 1);
-
-    if (isIncrement) {
+    if (isCounterIncrement(stmts[stmts.length - 1]!, counterName)) {
       context.report({
         message: `Explicit counter loop: manual counter \`${counterName}\` can be replaced with \`for (const [${counterName}, item] of arr.entries())\`. (clippy::explicit_counter_loop)`,
         node: loop,

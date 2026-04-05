@@ -65,18 +65,6 @@ export default {
           });
           return;
         }
-
-        // "str".toString()
-        if (
-          callee.type === "MemberExpression" &&
-          isIdentifier(callee.property, "toString") &&
-          callee.object.type === "Literal" &&
-          typeof callee.object.value === "string" &&
-          args.length === 0
-        ) {
-          // This branch handles 0-arg toString, but our check above requires 1 arg.
-          // We'll handle it in a separate visitor.
-        }
       },
 
       // Handle 0-arg method calls like "str".toString(), (42).valueOf()

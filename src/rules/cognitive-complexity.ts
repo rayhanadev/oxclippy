@@ -9,6 +9,22 @@ import type { Context, Node } from "../types";
 
 const THRESHOLD = 25;
 
+type WalkFn = (n: Node, nesting: number) => void;
+
+function walkChildren(n: Node, nesting: number, walk: WalkFn) {
+  for (const key of Object.keys(n)) {
+    if (key === "type" || key === "loc" || key === "range" || key === "parent") continue;
+    const val = n[key];
+    if (Array.isArray(val)) {
+      for (const child of val) {
+        if (child && typeof child === "object" && child.type) walk(child, nesting);
+      }
+    } else if (val && typeof val === "object" && val.type) {
+      walk(val, nesting);
+    }
+  }
+}
+
 function calculateComplexity(node: Node): number {
   let complexity = 0;
 
@@ -22,38 +38,26 @@ function calculateComplexity(node: Node): number {
         walk(n.consequent, nesting + 1);
         if (n.alternate) {
           if (n.alternate.type === "IfStatement") {
-            // else if: +1 but no nesting increase
             complexity += 1;
             walk(n.alternate.test, nesting);
             walk(n.alternate.consequent, nesting + 1);
-            if (n.alternate.alternate) {
-              walk(n.alternate.alternate, nesting);
-            }
+            if (n.alternate.alternate) walk(n.alternate.alternate, nesting);
           } else {
-            // else: +1
             complexity += 1;
             walk(n.alternate, nesting + 1);
           }
         }
-        return; // handled children manually
+        return;
 
       case "ForStatement":
       case "ForInStatement":
       case "ForOfStatement":
       case "WhileStatement":
       case "DoWhileStatement":
-        complexity += 1 + nesting;
-        walkChildren(n, nesting + 1);
-        return;
-
       case "CatchClause":
-        complexity += 1 + nesting;
-        walkChildren(n, nesting + 1);
-        return;
-
       case "SwitchStatement":
         complexity += 1 + nesting;
-        walkChildren(n, nesting + 1);
+        walkChildren(n, nesting + 1, walk);
         return;
 
       case "ConditionalExpression":
@@ -64,46 +68,24 @@ function calculateComplexity(node: Node): number {
         return;
 
       case "LogicalExpression":
-        // Each && or || adds 1 (no nesting bonus for these)
         complexity += 1;
         walk(n.left, nesting);
         walk(n.right, nesting);
         return;
 
-      // Don't recurse into nested function declarations/expressions
       case "FunctionDeclaration":
       case "FunctionExpression":
       case "ArrowFunctionExpression":
         return;
     }
 
-    walkChildren(n, nesting);
+    walkChildren(n, nesting, walk);
   }
 
-  function walkChildren(n: Node, nesting: number) {
-    for (const key of Object.keys(n)) {
-      if (key === "type" || key === "loc" || key === "range" || key === "parent") continue;
-      const val = n[key];
-      if (Array.isArray(val)) {
-        for (const child of val) {
-          if (child && typeof child === "object" && child.type) {
-            walk(child, nesting);
-          }
-        }
-      } else if (val && typeof val === "object" && val.type) {
-        walk(val, nesting);
-      }
-    }
-  }
-
-  // Start walking from the function body
   if (node.body) {
     if (node.body.type === "BlockStatement") {
-      for (const stmt of node.body.body) {
-        walk(stmt, 0);
-      }
+      for (const stmt of node.body.body) walk(stmt, 0);
     } else {
-      // Arrow function with expression body
       walk(node.body, 0);
     }
   }

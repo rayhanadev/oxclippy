@@ -38,26 +38,24 @@ export default {
         }
         if (!bodyExpr || bodyExpr.type !== "LogicalExpression") return;
 
+        const isAccLeft = bodyExpr.left.type === "Identifier" && bodyExpr.left.name === accName;
+
         // acc || expr with initial false → .some()
-        if (bodyExpr.operator === "||" && isLiteral(initial, false)) {
-          if (bodyExpr.left.type === "Identifier" && bodyExpr.left.name === accName) {
-            context.report({
-              message:
-                "Unnecessary fold: this `.reduce()` with `||` and initial `false` can be replaced with `.some()`. (clippy::unnecessary_fold)",
-              node,
-            });
-          }
+        if (bodyExpr.operator === "||" && isLiteral(initial, false) && isAccLeft) {
+          context.report({
+            message:
+              "Unnecessary fold: this `.reduce()` with `||` and initial `false` can be replaced with `.some()`. (clippy::unnecessary_fold)",
+            node,
+          });
         }
 
         // acc && expr with initial true → .every()
-        if (bodyExpr.operator === "&&" && isLiteral(initial, true)) {
-          if (bodyExpr.left.type === "Identifier" && bodyExpr.left.name === accName) {
-            context.report({
-              message:
-                "Unnecessary fold: this `.reduce()` with `&&` and initial `true` can be replaced with `.every()`. (clippy::unnecessary_fold)",
-              node,
-            });
-          }
+        if (bodyExpr.operator === "&&" && isLiteral(initial, true) && isAccLeft) {
+          context.report({
+            message:
+              "Unnecessary fold: this `.reduce()` with `&&` and initial `true` can be replaced with `.every()`. (clippy::unnecessary_fold)",
+            node,
+          });
         }
       },
     };

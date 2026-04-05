@@ -2,7 +2,6 @@
 // Detects: for/while where every path through the body ends with break/return/throw.
 
 import type { Context, Node } from "../types";
-import { unwrapBlock } from "../types";
 
 function alwaysExits(node: Node): boolean {
   if (!node) return false;

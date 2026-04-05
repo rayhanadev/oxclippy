@@ -23,51 +23,41 @@ const SAFE_SINGLE_ARG = new Set([
   "decodeURI",
 ]);
 
+function extractSingleParamBody(callback: Node): { paramName: string; bodyExpr: Node } | null {
+  if (callback.params.length !== 1) return null;
+  const param = callback.params[0]!;
+  if (param.type !== "Identifier") return null;
+
+  let bodyExpr: Node | null = null;
+  if (callback.body.type === "BlockStatement" && callback.body.body.length === 1) {
+    const stmt = callback.body.body[0]!;
+    if (stmt.type === "ReturnStatement") bodyExpr = stmt.argument;
+  } else if (callback.body.type !== "BlockStatement") {
+    bodyExpr = callback.body;
+  }
+
+  return bodyExpr ? { paramName: param.name, bodyExpr } : null;
+}
+
 export default {
   create(context: Context) {
     return {
       CallExpression(node: Node) {
-        // Look for .method(x => fn(x)) or .method(function(x) { return fn(x); })
-        const callee = node.callee;
-        if (callee.type !== "MemberExpression") return;
-
+        if (node.callee.type !== "MemberExpression") return;
         const args = node.arguments;
         if (!args || args.length !== 1) return;
 
         const callback = args[0]!;
-        let paramName: string | null = null;
-        let bodyExpr: Node | null = null;
+        if (callback.type !== "ArrowFunctionExpression" && callback.type !== "FunctionExpression")
+          return;
 
-        if (callback.type === "ArrowFunctionExpression" && callback.params.length === 1) {
-          const param = callback.params[0]!;
-          if (param.type !== "Identifier") return;
-          paramName = param.name;
+        const extracted = extractSingleParamBody(callback);
+        if (!extracted) return;
+        const { paramName, bodyExpr } = extracted;
 
-          if (callback.body.type === "BlockStatement" && callback.body.body.length === 1) {
-            const stmt = callback.body.body[0]!;
-            if (stmt.type === "ReturnStatement") bodyExpr = stmt.argument;
-          } else if (callback.body.type !== "BlockStatement") {
-            bodyExpr = callback.body;
-          }
-        } else if (callback.type === "FunctionExpression" && callback.params.length === 1) {
-          const param = callback.params[0]!;
-          if (param.type !== "Identifier") return;
-          paramName = param.name;
+        if (bodyExpr.type !== "CallExpression" || bodyExpr.arguments.length !== 1) return;
+        if (!isIdentifier(bodyExpr.arguments[0]!, paramName)) return;
 
-          if (callback.body.type === "BlockStatement" && callback.body.body.length === 1) {
-            const stmt = callback.body.body[0]!;
-            if (stmt.type === "ReturnStatement") bodyExpr = stmt.argument;
-          }
-        }
-
-        if (!paramName || !bodyExpr) return;
-        if (bodyExpr.type !== "CallExpression") return;
-        if (bodyExpr.arguments.length !== 1) return;
-
-        const innerArg = bodyExpr.arguments[0]!;
-        if (!isIdentifier(innerArg, paramName)) return;
-
-        // Check if the called function is a safe single-arg builtin
         const fnCallee = bodyExpr.callee;
         if (isIdentifier(fnCallee) && SAFE_SINGLE_ARG.has(fnCallee.name)) {
           context.report({

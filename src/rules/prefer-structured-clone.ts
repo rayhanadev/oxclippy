@@ -4,7 +4,7 @@
 // and avoids the gotchas of JSON round-tripping (undefined → missing, functions → missing).
 
 import type { Context, Node } from "../types";
-import { isIdentifier, isCallOf } from "../types";
+import { isCallOf } from "../types";
 
 export default {
   create(context: Context) {

@@ -41,41 +41,31 @@ export function lint(rule: Rule, source: string, filename = "test.ts"): Diagnost
 
   const visitors = rule.create(context);
 
-  // Walk the AST and dispatch to visitors
-  function walk(node: any, parent: any) {
-    if (!node || typeof node !== "object") return;
-    if (!node.type) return;
+  const SKIP_KEYS = new Set(["type", "loc", "range", "parent", "start", "end"]);
 
-    node.parent = parent;
-
-    // Call enter visitor
-    const visitor = visitors[node.type];
-    if (visitor) visitor(node);
-
-    // Recurse into children
+  function walkChildren(node: any, walk: (n: any, p: any) => void) {
     for (const key of Object.keys(node)) {
-      if (
-        key === "type" ||
-        key === "loc" ||
-        key === "range" ||
-        key === "parent" ||
-        key === "start" ||
-        key === "end"
-      )
-        continue;
+      if (SKIP_KEYS.has(key)) continue;
       const val = node[key];
       if (Array.isArray(val)) {
         for (const child of val) {
-          if (child && typeof child === "object" && child.type) {
-            walk(child, node);
-          }
+          if (child && typeof child === "object" && child.type) walk(child, node);
         }
       } else if (val && typeof val === "object" && val.type) {
         walk(val, node);
       }
     }
+  }
 
-    // Call exit visitor
+  function walk(node: any, parent: any) {
+    if (!node || typeof node !== "object" || !node.type) return;
+    node.parent = parent;
+
+    const visitor = visitors[node.type];
+    if (visitor) visitor(node);
+
+    walkChildren(node, walk);
+
     const exitVisitor = visitors[node.type + ":exit"];
     if (exitVisitor) exitVisitor(node);
   }

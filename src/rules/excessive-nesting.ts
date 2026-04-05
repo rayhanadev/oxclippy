@@ -16,13 +16,34 @@ const NESTING_NODES = new Set([
   "TryStatement",
 ]);
 
+const FUNCTION_TYPES = new Set([
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "ArrowFunctionExpression",
+]);
+const SKIP_KEYS = new Set(["type", "loc", "range", "parent", "start", "end"]);
+
+function walkChildren(node: Node, depth: number, walk: (n: Node, d: number) => void) {
+  for (const key of Object.keys(node)) {
+    if (SKIP_KEYS.has(key)) continue;
+    const val = node[key];
+    if (Array.isArray(val)) {
+      for (const child of val) {
+        if (child && typeof child === "object" && child.type) walk(child, depth);
+      }
+    } else if (val && typeof val === "object" && val.type) {
+      walk(val, depth);
+    }
+  }
+}
+
 export default {
   create(context: Context) {
     let reported = false;
 
     function walk(node: Node, depth: number) {
-      if (!node || typeof node !== "object" || !node.type) return;
-      if (reported) return;
+      if (!node || typeof node !== "object" || !node.type || reported) return;
+      if (depth > 0 && FUNCTION_TYPES.has(node.type)) return;
 
       const isNesting = NESTING_NODES.has(node.type);
       const newDepth = isNesting ? depth + 1 : depth;
@@ -36,49 +57,18 @@ export default {
         return;
       }
 
-      // Don't recurse into nested functions
-      if (
-        node.type === "FunctionDeclaration" ||
-        node.type === "FunctionExpression" ||
-        node.type === "ArrowFunctionExpression"
-      ) {
-        if (depth > 0) return; // only skip nested functions, not the top-level one
-      }
+      walkChildren(node, newDepth, walk);
+    }
 
-      for (const key of Object.keys(node)) {
-        if (
-          key === "type" ||
-          key === "loc" ||
-          key === "range" ||
-          key === "parent" ||
-          key === "start" ||
-          key === "end"
-        )
-          continue;
-        const val = node[key];
-        if (Array.isArray(val)) {
-          for (const child of val) {
-            if (child && typeof child === "object" && child.type) walk(child, newDepth);
-          }
-        } else if (val && typeof val === "object" && val.type) {
-          walk(val, newDepth);
-        }
-      }
+    function checkFunction(node: Node) {
+      reported = false;
+      walk(node.body, 0);
     }
 
     return {
-      FunctionDeclaration(node: Node) {
-        reported = false;
-        walk(node.body, 0);
-      },
-      FunctionExpression(node: Node) {
-        reported = false;
-        walk(node.body, 0);
-      },
-      ArrowFunctionExpression(node: Node) {
-        reported = false;
-        walk(node.body, 0);
-      },
+      FunctionDeclaration: checkFunction,
+      FunctionExpression: checkFunction,
+      ArrowFunctionExpression: checkFunction,
     };
   },
 };

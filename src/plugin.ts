@@ -57,10 +57,12 @@ import structFieldNames from "./rules/struct-field-names";
 import unreadableLiteral from "./rules/unreadable-literal";
 import boolToIntWithIf from "./rules/bool-to-int-with-if";
 
+import { name, version } from "../package.json";
+
 const plugin = {
   meta: {
-    name: "oxclippy",
-    version: "0.1.0",
+    name,
+    version,
   },
   rules: {
     // Style — code clarity and readability

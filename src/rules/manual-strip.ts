@@ -25,33 +25,25 @@ function getStringMethodTarget(
   };
 }
 
-function bodyContainsSlice(node: Node, strName: string): boolean {
-  // Walk the AST to find .slice() calls on the same variable
-  if (!node || typeof node !== "object") return false;
-
-  // Check if this node is a call to strName.slice(...)
-  if (
+function isSliceCall(node: Node, strName: string): boolean {
+  return (
     node.type === "CallExpression" &&
     node.callee?.type === "MemberExpression" &&
     node.callee.object?.type === "Identifier" &&
     node.callee.object.name === strName &&
     node.callee.property?.type === "Identifier" &&
     node.callee.property.name === "slice"
-  ) {
-    return true;
-  }
+  );
+}
 
-  // Recurse into children
+const SKIP_KEYS = new Set(["type", "loc", "range", "parent", "start", "end"]);
+
+function bodyContainsSlice(node: Node, strName: string): boolean {
+  if (!node || typeof node !== "object") return false;
+  if (isSliceCall(node, strName)) return true;
+
   for (const key of Object.keys(node)) {
-    if (
-      key === "type" ||
-      key === "loc" ||
-      key === "range" ||
-      key === "parent" ||
-      key === "start" ||
-      key === "end"
-    )
-      continue;
+    if (SKIP_KEYS.has(key)) continue;
     const val = node[key];
     if (Array.isArray(val)) {
       for (const child of val) {

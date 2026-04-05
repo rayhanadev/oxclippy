@@ -48,44 +48,38 @@ function isIncrement(update: Node, indexVar: string): boolean {
   return false;
 }
 
+const SKIP_KEYS = new Set(["type", "loc", "range", "parent", "start", "end"]);
+
+function isArrayIndexAccess(n: Node, indexVar: string, arrName: string): boolean {
+  return (
+    n.type === "MemberExpression" &&
+    n.computed &&
+    n.object?.type === "Identifier" &&
+    n.object.name === arrName &&
+    n.property?.type === "Identifier" &&
+    n.property.name === indexVar
+  );
+}
+
 /** Check if `indexVar` is used in the body ONLY as arr[indexVar] and nowhere else */
 function onlyUsedAsIndex(body: Node, indexVar: string, arrName: string): boolean {
   let onlyIndexAccess = true;
 
   function walk(n: Node) {
-    if (!n || typeof n !== "object" || !n.type) return;
-    if (!onlyIndexAccess) return;
+    if (!n || typeof n !== "object" || !n.type || !onlyIndexAccess) return;
 
     if (n.type === "Identifier" && n.name === indexVar) {
-      // This identifier reference to indexVar — check if parent is arr[i]
-      // We can't check parent easily, so we take a different approach
       onlyIndexAccess = false;
       return;
     }
 
-    if (
-      n.type === "MemberExpression" &&
-      n.computed &&
-      n.object?.type === "Identifier" &&
-      n.object.name === arrName &&
-      n.property?.type === "Identifier" &&
-      n.property.name === indexVar
-    ) {
-      // This is arr[i] — skip recursing into property to avoid the false hit
+    if (isArrayIndexAccess(n, indexVar, arrName)) {
       walk(n.object);
       return;
     }
 
     for (const key of Object.keys(n)) {
-      if (
-        key === "type" ||
-        key === "loc" ||
-        key === "range" ||
-        key === "parent" ||
-        key === "start" ||
-        key === "end"
-      )
-        continue;
+      if (SKIP_KEYS.has(key)) continue;
       const val = n[key];
       if (Array.isArray(val)) {
         for (const child of val) {

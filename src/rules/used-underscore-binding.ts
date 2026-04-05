@@ -19,11 +19,12 @@ export default {
         }
       },
       Identifier(node: Node) {
-        if (node.name?.startsWith("_") && node.name !== "_") {
-          // Only count as "used" if it's not the declaration site
-          if (node.parent?.type !== "VariableDeclarator" || node.parent.id !== node) {
-            used.add(node.name);
-          }
+        if (
+          node.name?.startsWith("_") &&
+          node.name !== "_" &&
+          (node.parent?.type !== "VariableDeclarator" || node.parent.id !== node)
+        ) {
+          used.add(node.name);
         }
       },
       "Program:exit"() {

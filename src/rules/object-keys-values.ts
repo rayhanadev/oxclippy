@@ -4,7 +4,7 @@
 // Analogous to Clippy's for_kv_map (iterating kv pairs when only one is needed).
 
 import type { Context, Node } from "../types";
-import { isCallOf, isIdentifier } from "../types";
+import { isCallOf } from "../types";
 
 export default {
   create(context: Context) {
