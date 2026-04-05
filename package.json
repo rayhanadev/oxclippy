@@ -1,0 +1,53 @@
+{
+  "name": "oxclippy",
+  "version": "0.1.0",
+  "description": "An oxlint JS plugin that mirrors Rust Clippy rules for TypeScript/JavaScript",
+  "keywords": [
+    "clippy",
+    "javascript",
+    "lint",
+    "linter",
+    "oxc",
+    "oxlint",
+    "plugin",
+    "typescript"
+  ],
+  "homepage": "https://github.com/rayhanadev/oxclippy#readme",
+  "bugs": {
+    "url": "https://github.com/rayhanadev/oxclippy/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rayhanadev/oxclippy"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "main": "dist/oxclippy.js",
+  "exports": {
+    ".": "./dist/oxclippy.js"
+  },
+  "scripts": {
+    "build": "bun build src/plugin.ts --outfile dist/oxclippy.js --format esm",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "oxc-parser": "^0.123.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.58.0",
+    "oxlint-tsgolint": "^0.19.0"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  }
+}
